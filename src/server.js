@@ -5,8 +5,6 @@ const path = require('path')
 
 const app = express()
 
-
-
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 
@@ -34,6 +32,10 @@ io.on('connection', socket=>{
     socket.on('sendMessage' , data=>{
         messages.push(data)
         socket.broadcast.emit('receivedMessage', data)
+    })
+
+    socket.on('sendTypingMessage' , data=>{
+        socket.broadcast.emit('receivedTypingMessage', data)
     })
 })
 

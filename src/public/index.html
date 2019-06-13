@@ -28,12 +28,13 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <span  v-html="messageObject.messages"></span>
+                        <span v-if="isTyping" v-html="messageTyping"></span>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-10">
-                    <input type="text" class="form-control" placeholder="Enviar Mensagem" v-model="messageObject.message">
+                    <input type="text" class="form-control" placeholder="Enviar Mensagem" @keyup="digitando" v-model="messageObject.message">
                 </div>
                 <div class="col-lg-2">
                     <button type="submit" class="btn btn-primary">Enviar</button>
@@ -52,9 +53,11 @@
                 username: `NickName-${new Date().getTime()}`,
                 dth_message: null,
                 messages: '',
-                message: null
+                message: null,
             },
-            socket: io('https://node-chat-realtime.herokuapp.com')
+            isTyping: false,
+            messageTyping: '',
+            socket: io('localhost:8000')
         },
         methods: {
             enviar(event){
@@ -63,6 +66,9 @@
                 this.messageObject.messages = this.messageObject.messages + `<strong>${this.messageObject.dth_message}-${this.messageObject.username}</strong>: ${this.messageObject.message}<br>`
                 this.messageObject.message = ''
                 event.target.reset()
+            },
+            digitando(event){
+                this.socket.emit('sendTypingMessage', { isTyping:this.messageObject.message ? true : false, username:this.messageObject.username } )
             }
         
         },
@@ -74,6 +80,13 @@
 
             this.socket.on('previousMessages', function(messages){
                 messages.forEach(message =>  ref.messageObject.messages = ref.messageObject.messages + `<strong>${message.dth_message}-${message.username}</strong>: ${message.message}<br>`  )
+            })
+
+            this.socket.on('receivedTypingMessage', function(data){
+                if(data.isTyping){
+                    ref.messageTyping = `<br><code>${data.username} está digitando...</code>`
+                    ref.isTyping = true
+                }else ref.isTyping = false
             })
         }
     })

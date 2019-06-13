@@ -16,8 +16,12 @@ app.engine('html', require('ejs').renderFile)
 app.set('view engine' , 'html')
 app.use(morgan('dev'))
 
-app.use('/' , (req,res)=>{
-    res.render('index')
+app.get('/' , (req,res)=>{
+    return res.render('index')
+})
+
+app.get('*' , (req,res)=>{
+    return res.redirect('/')
 })
 
 let messages = []

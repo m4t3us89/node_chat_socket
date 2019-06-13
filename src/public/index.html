@@ -50,6 +50,7 @@
         data: {
             messageObject:{
                 username: `NickName-${new Date().getTime()}`,
+                dth_message: null,
                 messages: '',
                 message: null
             },
@@ -57,8 +58,9 @@
         },
         methods: {
             enviar(event){
+                this.messageObject.dth_message = new Date().toLocaleString()
                 this.socket.emit('sendMessage', this.messageObject)
-                this.messageObject.messages = this.messageObject.messages + `<strong>${this.messageObject.username}</strong>: ${this.messageObject.message}<br>`
+                this.messageObject.messages = this.messageObject.messages + `<strong>${this.messageObject.dth_message}-${this.messageObject.username}</strong>: ${this.messageObject.message}<br>`
                 this.messageObject.message = ''
                 event.target.reset()
             }
@@ -67,11 +69,11 @@
         mounted(){
             const ref = this
             this.socket.on('receivedMessage', function(message){
-                ref.messageObject.messages = ref.messageObject.messages + `<strong>${message.username}</strong>: ${message.message}<br>`
+                ref.messageObject.messages = ref.messageObject.messages + `<strong>${message.dth_message}-${message.username}</strong>: ${message.message}<br>`
             })
 
             this.socket.on('previousMessages', function(messages){
-                messages.forEach(message =>  ref.messageObject.messages = ref.messageObject.messages + `<strong>${message.username}</strong>: ${message.message}<br>`  )
+                messages.forEach(message =>  ref.messageObject.messages = ref.messageObject.messages + `<strong>${message.dth_message}-${message.username}</strong>: ${message.message}<br>`  )
             })
         }
     })
